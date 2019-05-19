@@ -8,7 +8,7 @@
   </information>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="CraigSpencerImageViewer.jar" size="4071" download="eager" />
+    <jar href="CraigSpencerImageViewer.jar" size="4070" download="eager" />
   </resources>
   <applet-desc  width="800" height="600" main-class="com.javafx.main.NoJavaFXFallback"  name="CraigSpencerImageViewer" >
     <param name="requiredFXVersion" value="8.0+"/>

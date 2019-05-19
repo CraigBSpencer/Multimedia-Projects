@@ -4,6 +4,8 @@
  * and open the template in the editor.
  */
 package CraigSpencerImageViewer;
+//this is a test to change the version of the code to see if github recognizes the changes and offers to upload the new versrion
+//
 
 import java.awt.image.BufferedImage;
 import java.io.File;
