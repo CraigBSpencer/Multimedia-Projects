@@ -5,7 +5,6 @@
  */
 package CraigSpencerImageViewer;
 //this is a test to change the version of the code to see if github recognizes the changes and offers to upload the new versrion
-//
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -40,19 +39,25 @@ public class CraigSpencerImageViewer extends Application {
     @Override
     public void start(Stage primaryStage) {
 
+        // creates the tab called file
         Menu menu1 = new Menu("File");
-
+        
+        // creates menu items under file
         MenuItem menuItem1 = new MenuItem("Open Image");
         MenuItem menuItem2 = new MenuItem("Exit");
 
+        // attaches
         menu1.getItems().add(menuItem1);
         menu1.getItems().add(menuItem2);
 
+        
         menuItem1.setOnAction(menuLoadEventListener);
+        // exits the app
         menuItem2.setOnAction(e -> {
             System.exit(0);
         });
 
+        // creates the menu bar
         MenuBar menuBar = new MenuBar();
 
         menuBar.getMenus().add(menu1);
@@ -75,21 +80,21 @@ public class CraigSpencerImageViewer extends Application {
         });
         Button originalZoomOut = new Button("Zoom Out");
         originalZoomOut.setOnAction(e -> {
-            myImageView.setScaleX(0.5);
-            myImageView.setScaleY(0.5);
+            myImageView.setScaleX(0.4);
+            myImageView.setScaleY(0.4);
         });
         Button originalOriginalSize = new Button("Original Size");
         originalOriginalSize.setOnAction(e -> {
             myImageView.setScaleX(1.0);
             myImageView.setScaleY(1.0);
         });
+
         originalImageButtonBox.getChildren().addAll(originalZoomIn, originalZoomOut, originalOriginalSize);
         originalImageBox.getChildren().addAll(label, scrollPane, originalImageButtonBox);
-
         VBox rootBox = new VBox();
         rootBox.getChildren().addAll(menuBar, originalImageBox);
 
-        Scene scene = new Scene(rootBox, 300, 300);
+        Scene scene = new Scene(rootBox, 800, 800);
 
         primaryStage.setTitle("Craig Spencer Image Viewer");
         primaryStage.setScene(scene);
