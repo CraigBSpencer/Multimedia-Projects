@@ -31,6 +31,7 @@
  */
 package advancedmedia;
 
+import java.io.File;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
@@ -61,11 +62,12 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.media.MediaView;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
 /**
- * An advanced media player with controls for play/pause, seek, and volume. 
+ * An advanced media player with controls for play/pause, seek, and volume.
  *
  * @see javafx.scene.media.MediaPlayer
  * @see javafx.scene.media.Media
@@ -75,39 +77,50 @@ public class AdvancedMedia extends Application {
     private MediaPlayer mediaPlayer;
 
     private void init(Stage primaryStage) {
+        FileChooser fileChooser = new FileChooser();
+
+        //Set extension filter
+        FileChooser.ExtensionFilter extFilterJPG = new FileChooser.ExtensionFilter("JPG files (*.jpg)", "*.JPG");
+        FileChooser.ExtensionFilter extFilterPNG = new FileChooser.ExtensionFilter("BMP files (*.bmp)", "*.BMP");
+        fileChooser.getExtensionFilters().addAll(extFilterJPG, extFilterPNG);
+
+        //Show open file dialog
+        File file = fileChooser.showOpenDialog(null);
+
         Group root = new Group();
         primaryStage.setScene(new Scene(root));
-        mediaPlayer = new MediaPlayer(new Media(MEDIA_URL));
+        String URIOfMedia = file.toURI().toString();
+        mediaPlayer = new MediaPlayer(new Media(URIOfMedia));
         mediaPlayer.setAutoPlay(true);
         MediaControl mediaControl = new MediaControl(mediaPlayer);
-        mediaControl.setMinSize(480,280);
-        mediaControl.setPrefSize(480,280);
-        mediaControl.setMaxSize(480,280);
+        mediaControl.setMinSize(480, 280);
+        mediaControl.setPrefSize(480, 280);
+        mediaControl.setMaxSize(480, 280);
         root.getChildren().add(mediaControl);
     }
 
     public void play() {
         Status status = mediaPlayer.getStatus();
         if (status == Status.UNKNOWN
-            || status == Status.HALTED)
-        {
+                || status == Status.HALTED) {
             //System.out.println("Player is in a bad or unknown state, can't play.");
             return;
         }
-        
+
         if (status == Status.PAUSED
-         || status == Status.STOPPED
-         || status == Status.READY)
-        {
+                || status == Status.STOPPED
+                || status == Status.READY) {
             mediaPlayer.play();
         }
     }
 
-    @Override public void stop() {
+    @Override
+    public void stop() {
         mediaPlayer.stop();
     }
 
     public class MediaControl extends BorderPane {
+
         private MediaPlayer mp;
         private MediaView mediaView;
         private final boolean repeat = false;
@@ -126,40 +139,51 @@ public class AdvancedMedia extends Application {
         private Stage newStage;
         private boolean fullScreen = false;
 
-        @Override protected void layoutChildren() {
+        @Override
+        protected void layoutChildren() {
             if (mediaView != null && getBottom() != null) {
                 mediaView.setFitWidth(getWidth());
                 mediaView.setFitHeight(getHeight() - getBottom().prefHeight(-1));
             }
             super.layoutChildren();
             if (mediaView != null && getCenter() != null) {
-                mediaView.setTranslateX((((Pane)getCenter()).getWidth() - mediaView.prefWidth(-1)) / 2);
-                mediaView.setTranslateY((((Pane)getCenter()).getHeight() - mediaView.prefHeight(-1)) / 2);
+                mediaView.setTranslateX((((Pane) getCenter()).getWidth() - mediaView.prefWidth(-1)) / 2);
+                mediaView.setTranslateY((((Pane) getCenter()).getHeight() - mediaView.prefHeight(-1)) / 2);
             }
         }
 
-        @Override protected double computeMinWidth(double height) {
+        @Override
+        protected double computeMinWidth(double height) {
             return mediaBar.prefWidth(-1);
         }
 
-        @Override protected double computeMinHeight(double width) {
+        @Override
+        protected double computeMinHeight(double width) {
             return 200;
         }
 
-        @Override protected double computePrefWidth(double height) {
+        @Override
+        protected double computePrefWidth(double height) {
             return Math.max(mp.getMedia().getWidth(), mediaBar.prefWidth(height));
         }
 
-        @Override protected double computePrefHeight(double width) {
+        @Override
+        protected double computePrefHeight(double width) {
             return mp.getMedia().getHeight() + mediaBar.prefHeight(width);
         }
 
-        @Override protected double computeMaxWidth(double height) { return Double.MAX_VALUE; }
+        @Override
+        protected double computeMaxWidth(double height) {
+            return Double.MAX_VALUE;
+        }
 
-        @Override protected double computeMaxHeight(double width) { return Double.MAX_VALUE; }
+        @Override
+        protected double computeMaxHeight(double width) {
+            return Double.MAX_VALUE;
+        }
 
         public MediaControl(final MediaPlayer mp) {
-            this.mp=mp;
+            this.mp = mp;
             setStyle("-fx-background-color: #bfc2c7;"); // TODO: Use css file
             mediaView = new MediaView(mp);
             mvPane = new Pane();
@@ -171,26 +195,24 @@ public class AdvancedMedia extends Application {
             mediaBar.setAlignment(Pos.CENTER_LEFT);
             BorderPane.setAlignment(mediaBar, Pos.CENTER);
 
-            final Button playButton  = ButtonBuilder.create()
+            final Button playButton = ButtonBuilder.create()
                     .minWidth(Control.USE_PREF_SIZE)
                     .build();
-            
+
             playButton.setGraphic(imageViewPlay);
             playButton.setOnAction(new EventHandler<ActionEvent>() {
                 public void handle(ActionEvent e) {
                     updateValues();
                     Status status = mp.getStatus();
                     if (status == Status.UNKNOWN
-                        || status == Status.HALTED)
-                    {
+                            || status == Status.HALTED) {
                         // don't do anything in these states
                         return;
                     }
 
                     if (status == Status.PAUSED
-                        || status == Status.READY
-                        || status == Status.STOPPED)
-                    {
+                            || status == Status.READY
+                            || status == Status.STOPPED) {
                         // rewind the movie if we're sitting at the end
                         if (atEndOfMedia) {
                             mp.seek(mp.getStartTime());
@@ -202,8 +224,7 @@ public class AdvancedMedia extends Application {
                         mp.play();
                         playButton.setGraphic(imageViewPause);
                         //playButton.setText("||");
-                    }
-                    else {
+                    } else {
                         mp.pause();
                     }
                 }
@@ -216,7 +237,7 @@ public class AdvancedMedia extends Application {
             });
             mp.setOnPlaying(new Runnable() {
                 public void run() {
-                    
+
                     if (stopRequested) {
                         mp.pause();
                         stopRequested = false;
@@ -228,7 +249,7 @@ public class AdvancedMedia extends Application {
             });
             mp.setOnPaused(new Runnable() {
                 public void run() {
-                    
+
                     playButton.setGraphic(imageViewPlay);
                     //playButton.setText("||");
                 }
@@ -239,7 +260,7 @@ public class AdvancedMedia extends Application {
                     updateValues();
                 }
             });
-            
+
             mp.setCycleCount(repeat ? MediaPlayer.INDEFINITE : 1);
             mp.setOnEndOfMedia(new Runnable() {
                 public void run() {
@@ -252,13 +273,12 @@ public class AdvancedMedia extends Application {
                 }
             });
             mediaBar.getChildren().add(playButton);
-            
+
             // Time label
             Label timeLabel = new Label("Time");
             timeLabel.setMinWidth(Control.USE_PREF_SIZE);
             mediaBar.getChildren().add(timeLabel);
-            
-            
+
             // Time slider
             timeSlider = SliderBuilder.create()
                     .minWidth(30)
@@ -269,7 +289,7 @@ public class AdvancedMedia extends Application {
                 public void invalidated(Observable ov) {
                     if (timeSlider.isValueChanging()) {
                         // multiply duration by percentage calculated by slider position
-                        if(duration!=null) {
+                        if (duration != null) {
                             mp.seek(duration.multiply(timeSlider.getValue() / 100.0));
                         }
                         updateValues();
@@ -278,79 +298,79 @@ public class AdvancedMedia extends Application {
                 }
             });
             mediaBar.getChildren().add(timeSlider);
-            
+
             // Play label
             playTime = LabelBuilder.create()
                     //.prefWidth(130)
                     .minWidth(Control.USE_PREF_SIZE)
                     .build();
-            
+
             mediaBar.getChildren().add(playTime);
-            
-            
+
             //Fullscreen button
-            
             Button buttonFullScreen = ButtonBuilder.create()
                     .text("Full Screen")
                     .minWidth(Control.USE_PREF_SIZE)
                     .build();
-            
+
             buttonFullScreen.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
-                    if (!fullScreen){
-                    newStage = new Stage();
-                    newStage.fullScreenProperty().addListener(new ChangeListener<Boolean>() {
-                        @Override public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
-                            onFullScreen(); 
-                        }
-                    });
-                    final BorderPane borderPane = new BorderPane(){
-                        @Override protected void layoutChildren(){
-                            if (mediaView != null && getBottom() != null) {
+                    if (!fullScreen) {
+                        newStage = new Stage();
+                        newStage.fullScreenProperty().addListener(new ChangeListener<Boolean>() {
+                            @Override
+                            public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
+                                onFullScreen();
+                            }
+                        });
+                        final BorderPane borderPane = new BorderPane() {
+                            @Override
+                            protected void layoutChildren() {
+                                if (mediaView != null && getBottom() != null) {
                                     mediaView.setFitWidth(getWidth());
                                     mediaView.setFitHeight(getHeight() - getBottom().prefHeight(-1));
+                                }
+                                super.layoutChildren();
+                                if (mediaView != null) {
+                                    mediaView.setTranslateX((((Pane) getCenter()).getWidth() - mediaView.prefWidth(-1)) / 2);
+                                    mediaView.setTranslateY((((Pane) getCenter()).getHeight() - mediaView.prefHeight(-1)) / 2);
+                                }
                             }
-                            super.layoutChildren();
-                            if (mediaView != null) {
-                                mediaView.setTranslateX((((Pane)getCenter()).getWidth() - mediaView.prefWidth(-1)) / 2);
-                                mediaView.setTranslateY((((Pane)getCenter()).getHeight() - mediaView.prefHeight(-1)) / 2);
-                            }
+                        ;
                         };
-                    };
                    
                     setCenter(null);
-                    setBottom(null);
-                    borderPane.setCenter(mvPane);
-                    borderPane.setBottom(mediaBar);
-                    
-                    Scene newScene = new Scene(borderPane);
-                    newStage.setScene(newScene);
-                    //Workaround for disposing stage when exit fullscreen
-                    newStage.setX(-100000);
-                    newStage.setY(-100000);
-                    
-                    newStage.setFullScreen(true);
-                    fullScreen = true;
-                    newStage.show();
-                    
-                }
-                    else{
+                        setBottom(null);
+                        borderPane.setCenter(mvPane);
+                        borderPane.setBottom(mediaBar);
+
+                        Scene newScene = new Scene(borderPane);
+                        newStage.setScene(newScene);
+                        //Workaround for disposing stage when exit fullscreen
+                        newStage.setX(-100000);
+                        newStage.setY(-100000);
+
+                        newStage.setFullScreen(true);
+                        fullScreen = true;
+                        newStage.show();
+
+                    } else {
                         //toggle FullScreen
                         fullScreen = false;
                         newStage.setFullScreen(false);
-                        
+
                     }
                 }
-                
+
             });
             mediaBar.getChildren().add(buttonFullScreen);
-            
+
             // Volume label
             Label volumeLabel = new Label("Vol");
             volumeLabel.setMinWidth(Control.USE_PREF_SIZE);
             mediaBar.getChildren().add(volumeLabel);
-            
+
             // Volume slider
             volumeSlider = SliderBuilder.create()
                     .prefWidth(70)
@@ -370,26 +390,27 @@ public class AdvancedMedia extends Application {
                 }
             });
             mediaBar.getChildren().add(volumeSlider);
-            
+
             setBottom(mediaBar);
-            
+
         }
 
-        protected void onFullScreen(){
-            if (!newStage.isFullScreen()){
-                
+        protected void onFullScreen() {
+            if (!newStage.isFullScreen()) {
+
                 fullScreen = false;
                 setCenter(mvPane);
                 setBottom(mediaBar);
                 Platform.runLater(new Runnable() {
-                    @Override public void run() {
+                    @Override
+                    public void run() {
                         newStage.close();
-                        }
-                    });
-                
+                    }
+                });
+
             }
         }
-        
+
         protected void updateValues() {
             if (playTime != null && timeSlider != null && volumeSlider != null && duration != null) {
                 Platform.runLater(new Runnable() {
@@ -408,9 +429,8 @@ public class AdvancedMedia extends Application {
             }
         }
 
-        
         private String formatTime(Duration elapsed, Duration duration) {
-            int intElapsed = (int)Math.floor(elapsed.toSeconds());
+            int intElapsed = (int) Math.floor(elapsed.toSeconds());
             int elapsedHours = intElapsed / (60 * 60);
             if (elapsedHours > 0) {
                 intElapsed -= elapsedHours * 60 * 60;
@@ -419,7 +439,7 @@ public class AdvancedMedia extends Application {
             int elapsedSeconds = intElapsed - elapsedHours * 60 * 60 - elapsedMinutes * 60;
 
             if (duration.greaterThan(Duration.ZERO)) {
-                int intDuration = (int)Math.floor(duration.toSeconds());
+                int intDuration = (int) Math.floor(duration.toSeconds());
                 int durationHours = intDuration / (60 * 60);
                 if (durationHours > 0) {
                     intDuration -= durationHours * 60 * 60;
@@ -429,36 +449,38 @@ public class AdvancedMedia extends Application {
 
                 if (durationHours > 0) {
                     return String.format("%d:%02d:%02d/%d:%02d:%02d",
-                                         elapsedHours, elapsedMinutes, elapsedSeconds,
-                                         durationHours, durationMinutes, durationSeconds);
+                            elapsedHours, elapsedMinutes, elapsedSeconds,
+                            durationHours, durationMinutes, durationSeconds);
                 } else {
                     return String.format("%02d:%02d/%02d:%02d",
-                                         elapsedMinutes, elapsedSeconds,
-                                         durationMinutes, durationSeconds);
+                            elapsedMinutes, elapsedSeconds,
+                            durationMinutes, durationSeconds);
                 }
             } else {
                 if (elapsedHours > 0) {
                     return String.format("%d:%02d:%02d",
-                                         elapsedHours, elapsedMinutes, elapsedSeconds);
+                            elapsedHours, elapsedMinutes, elapsedSeconds);
                 } else {
                     return String.format("%02d:%02d",
-                                         elapsedMinutes, elapsedSeconds);
+                            elapsedMinutes, elapsedSeconds);
                 }
             }
         }
     }
 
-    @Override public void start(Stage primaryStage) throws Exception {
+    @Override
+    public void start(Stage primaryStage) throws Exception {
         init(primaryStage);
         primaryStage.show();
         play();
     }
 
     /**
-     * The main() method is ignored in correctly deployed JavaFX 
-     * application. main() serves only as fallback in case the 
-     * application can not be launched through deployment artifacts,
-     * e.g., in IDEs with limited FX support. NetBeans ignores main().
+     * The main() method is ignored in correctly deployed JavaFX application.
+     * main() serves only as fallback in case the application can not be
+     * launched through deployment artifacts, e.g., in IDEs with limited FX
+     * support. NetBeans ignores main().
+     *
      * @param args the command line arguments
      */
     public static void main(String[] args) {
