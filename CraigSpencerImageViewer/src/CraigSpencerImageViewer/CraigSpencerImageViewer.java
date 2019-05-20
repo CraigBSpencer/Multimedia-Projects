@@ -15,6 +15,8 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -22,6 +24,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -46,24 +49,43 @@ public class CraigSpencerImageViewer extends Application {
         menuItem1.setOnAction(menuLoadEventListener);
         menuItem2.setOnAction(e -> {
             System.exit(0);
-        }
-        );
+        });
 
         MenuBar menuBar = new MenuBar();
 
-        menuBar.getMenus()
-                .add(menu1);
+        menuBar.getMenus().add(menu1);
+
+        VBox originalImageBox = new VBox();
+
+        Label label = new Label("Original Image");
 
         myImageView = new ImageView();
-
         scrollPane = new ScrollPane();
-        scrollPane.setPrefSize(300, 250);
         scrollPane.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
         scrollPane.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
         scrollPane.setContent(myImageView);
 
+        HBox originalImageButtonBox = new HBox();
+        Button originalZoomIn = new Button("Zoom In");
+        originalZoomIn.setOnAction(e -> {
+            myImageView.setScaleX(2.0);
+            myImageView.setScaleY(2.0);
+        });
+        Button originalZoomOut = new Button("Zoom Out");
+        originalZoomOut.setOnAction(e -> {
+            myImageView.setScaleX(0.5);
+            myImageView.setScaleY(0.5);
+        });
+        Button originalOriginalSize = new Button("Original Size");
+        originalOriginalSize.setOnAction(e -> {
+            myImageView.setScaleX(1.0);
+            myImageView.setScaleY(1.0);
+        });
+        originalImageButtonBox.getChildren().addAll(originalZoomIn, originalZoomOut, originalOriginalSize);
+        originalImageBox.getChildren().addAll(label, scrollPane, originalImageButtonBox);
+
         VBox rootBox = new VBox();
-        rootBox.getChildren().addAll(menuBar, scrollPane);
+        rootBox.getChildren().addAll(menuBar, originalImageBox);
 
         Scene scene = new Scene(rootBox, 300, 300);
 
