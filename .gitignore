@@ -1,2 +1,4 @@
 build
-nbproject/private
+CragiSpencerImageViewer\nbproject\private
+dist
+/CraigSpencerImageViewer/nbproject/private
